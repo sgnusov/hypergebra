@@ -1,4 +1,5 @@
 #include <set>
+#include <cmath>
 
 #include "instructions.h"
 #include "object_list.h"
@@ -59,4 +60,37 @@ void CreateLine::execute() {
 		return;
 	}
 	objects.add(std::to_string(id), id, std::make_shared<Line>(*p, *q));
+}
+
+CreatePointOnLine::CreatePointOnLine(int id, Point p, const std::string& line_id) : Instruction(id), p(p), line_id(line_id) {}
+
+void CreatePointOnLine::execute() {
+	std::shared_ptr<Line> l = std::static_pointer_cast<Line>(objects[line_id]);
+	if(l == nullptr)
+		return;
+	objects.add(std::to_string(id), id, std::make_shared<PointOnLine>(p, *l));
+}
+
+std::string CreatePointOnLine::getLineId() const {
+	return line_id;
+}
+
+IntersectLines::IntersectLines(int id, const std::string& idp, const std::string& idq) : Instruction(id), idp(idp), idq(idq) {}
+
+void IntersectLines::execute() {
+	std::shared_ptr<Line> p = std::static_pointer_cast<Line>(objects[idp]);
+	std::shared_ptr<Line> q = std::static_pointer_cast<Line>(objects[idq]);
+	if(p == nullptr || q == nullptr) {
+		//objects.add(std::to_string(id), id, nullptr);
+		return;
+	}
+	Point res = (*p) ^ (*q);
+	if(res.sq() >= 0) {
+		return;
+	}
+	res = res / std::sqrt(-res.sq());
+	if(res[0] + res[1] + res[2] < 0) {
+		res = -res;
+	}
+	objects.add(std::to_string(id), id, std::make_shared<FixedPoint>(res));
 }

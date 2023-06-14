@@ -8,11 +8,11 @@
 using ld = long double;
 
 class Object {
-	const int render_priority;
+	int render_priority;
 
 public:
-	const std::string type;
-	const std::string base_type;
+	std::string type;
+	std::string base_type;
 	Object(const std::string& type);
 	Object(const std::string& type, const std::string& base_type);
 	Object(const std::string& type, const std::string& base_type, int render_priority);

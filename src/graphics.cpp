@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include <stdio.h>
+#include <chrono>
 
 #include <SDL.h>
 #include <GL/glew.h>
@@ -17,10 +18,10 @@ int window_width = 1280, window_height = 720;
 SDL_Window* window;
 SDL_GLContext gl_context;
 
-Camera active_camera = Camera::BeltramiKlein();
+Camera active_camera = Camera::Poincare();
 std::unordered_map<std::string, std::unique_ptr<ShaderProgram>> shader_cache;
 
-std::shared_ptr<Tool> active_tool = std::static_pointer_cast<Tool>(std::make_shared<MovePoint>());
+std::shared_ptr<Tool> active_tool = std::make_shared<MovePointTool>();
 
 ld getX(int x) {
 	ld ratio = (ld)window_width / window_height;
@@ -132,6 +133,7 @@ int initGraphics() {
 	//setAttr(SDL_GL_DOUBLEBUFFER, 1);
 	//setAttr(SDL_GL_DEPTH_SIZE, 24);
 
+	SDL_GL_SetSwapInterval(0);
 
 	window = SDL_CreateWindow("Hypergebra", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		window_width, window_height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
@@ -184,22 +186,35 @@ int initGraphics() {
 
 	//instructions.push_back(std::make_unique<CreatePoint>(0, Point(0, 0)));
 	instructions.push_back(std::make_unique<CreatePoint>(0, Point(1, 1)));
-/*
 	instructions.push_back(std::make_unique<CreatePoint>(1, Point(-1, 1)));
 	instructions.push_back(std::make_unique<CreatePoint>(2, Point(3, -1)));
 	instructions.push_back(std::make_unique<CreateLine>(3, "0", "1"));
 	instructions.push_back(std::make_unique<CreateLine>(4, "2", "1"));
 	instructions.push_back(std::make_unique<CreateLine>(5, "0", "2"));
-*/
+	instructions.push_back(std::make_unique<CreatePointOnLine>(6, Point(2, 1), "3"));
+	instructions.push_back(std::make_unique<CreatePointOnLine>(7, Point(2, 1), "4"));
+
 	return 0;
 }
 
 int mainLoop() {
 	SDL_Event event;
+
+	int frames = 0;
+	auto start_time = std::chrono::steady_clock::now();
+	float fps = 0.0f;
+	int last_ticks = SDL_GetTicks();
 	while(true) {
+		/*
+		if(SDL_GetTicks() - last_ticks < 1000 / 100) {
+			continue;
+		}
+		last_ticks = SDL_GetTicks();
+		*/
+		++frames;
+		//std::cerr << "FPS: " << frames / ((std::chrono::duration<double>)(std::chrono::steady_clock::now() - start_time)).count() << '\n';
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
-	
 		processInstructions();
 		objects.render();
 
@@ -210,6 +225,31 @@ int mainLoop() {
 				SDL_DestroyWindow(window);
 				SDL_Quit();
 				return 0;
+			}
+			if(event.type == SDL_KEYDOWN) {
+				SDL_KeyboardEvent key = event.key;
+				switch (key.keysym.sym) {
+					case SDLK_m : {
+							std::cerr << "Switching to move\n";
+							active_tool = std::make_shared<MovePointTool>();
+							break;
+						}
+					case SDLK_p : {
+							std::cerr << "Switching to create point\n";
+							active_tool = std::make_shared<CreatePointTool>();
+							break;
+						}
+					case SDLK_l : {
+							std::cerr << "Switching to create line\n";
+							active_tool = std::make_shared<CreateLineTool>();
+							break;
+						}
+					case SDLK_i : {
+							std::cerr << "Switching to line intersection\n";
+							active_tool = std::make_shared<IntersectLinesTool>();
+							break;
+						}
+				}
 			}
 			//std::cerr << "Got event\n";
 			active_tool->processEvent(event);

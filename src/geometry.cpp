@@ -24,6 +24,11 @@ ld cosh(ld alpha) {
 	return (std::exp(alpha) + std::exp(-alpha)) / 2;
 }
 
+Point::Point(const Point& p, const std::string& type) : GeometryObject(type, 1) {
+	coords[0] = p[0];
+	coords[1] = p[1];
+	coords[2] = p[2];
+}
 
 Point::Point() : GeometryObject("Point", 1) {}
 
@@ -34,7 +39,6 @@ Point::Point(ld x, ld y, ld z) : GeometryObject("Point", 1) {
 }
 
 Point::Point(ld x, ld y) : Point(x, y, std::sqrt(1 + x * x + y * y)) {}
-
 Point Point::projectPoint(const Point& p) {
 	return *this;
 }
@@ -47,7 +51,7 @@ const ld& Point::operator [] (int i) const {
 	return coords[i];
 }
 
-ld Point::sq() {
+ld Point::sq() const {
 	return (*this) * (*this);
 }
 
@@ -85,7 +89,7 @@ Transformation::operator const ld*() const {
 }
 
 ld operator * (const Point& u, const Point& v) {
-	return u[0] * u[0] + u[1] * v[1] - u[2] * v[2];
+	return u[0] * v[0] + u[1] * v[1] - u[2] * v[2];
 }
 
 Point operator ^ (const Point& u, const Point& v) {
@@ -135,14 +139,18 @@ Transformation operator * (const Transformation& t, const Transformation& u) {
 
 Line::Line() : GeometryObject("Line"), coords() {}
 
-Line::Line(ld x, ld y, ld z) : GeometryObject("Line"), coords(x, y, z) {}
+Line::Line(ld x, ld y, ld z) : GeometryObject("Line"), coords(x, y, z) {
+	coords = coords / std::sqrt(coords.sq());
+}
 
 Line::Line(ld x, ld y) : Line(x, y, std::sqrt(x * x + y * y - 1)) {}
 
 Line::Line(const Point& p, const Point& q) : Line(p ^ q) {};
 
 Point Line::projectPoint(const Point& p) {
-	return p;
+	Point q = p - coords * (p * coords);
+	q = q / std::sqrt(-q.sq());
+	return q;
 }
 
 ld& Line::operator [] (int i) {
@@ -178,3 +186,17 @@ std::ostream& operator << (std::ostream& out, const Point& p) {
 	out << p[0] << ' ' << p[1] << ' ' << p[2];
 	return out;
 }
+
+PointOnLine::PointOnLine(Point p, Line l) : Point(l.projectPoint(p), "PointOnLine"), l(l) {}
+
+/*
+void PointOnLine::render() {
+	p.render();
+}
+
+Point PointOnLine::projectPoint(const Point& p_) {
+	return p.projectPoint(p_);
+}
+*/
+
+FixedPoint::FixedPoint(const Point& p) : Point(p, "FixedPoint") {}

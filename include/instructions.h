@@ -45,5 +45,20 @@ public:
 	CreateLine(int id, const std::string& idp, const std::string& idq);
 };
 
+class CreatePointOnLine : public Instruction {
+	void execute();
+public:
+	Point p;
+	std::string line_id;
+public:
+	CreatePointOnLine(int id, Point p, const std::string& line_id);
+	std::string getLineId() const;
+};
 
+class IntersectLines : public Instruction {
+	void execute();
+	std::string idp, idq;
+public:
+	IntersectLines(int id, const std::string& idp, const std::string& idq);
+};
 #endif

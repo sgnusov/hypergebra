@@ -12,6 +12,9 @@ class Line;
 class Point : public GeometryObject {
 	ld coords[3];
 
+protected:
+	Point(const Point& p, const std::string& type);
+
 public:
 	Point();
 	Point(ld x, ld y, ld z);
@@ -25,7 +28,7 @@ public:
 
 	operator Line() const;
 
-	ld sq();
+	ld sq() const;
 };
 
 std::ostream& operator << (std::ostream& out, const Point& p);
@@ -83,5 +86,16 @@ public:
 	Point getTangent(Point p);
 };
 
+class PointOnLine : public Point {
+	Line l;
+
+public:
+	PointOnLine(Point p, Line l);
+};
+
+class FixedPoint : public Point {
+public:
+	FixedPoint(const Point& p);
+};
 
 #endif
