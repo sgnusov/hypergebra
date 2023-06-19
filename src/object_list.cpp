@@ -32,8 +32,10 @@ void ObjectList::render() {
 	priorities.resize(std::unique(priorities.begin(), priorities.end()) - priorities.begin());
 	for(int priority : priorities) {
 		for(auto [id, object] : object_list) {
-			if(object != nullptr && object->getRenderPriority() == priority)
+			if(object != nullptr && object->getRenderPriority() == priority) {
+				object->assignProperties(properties[id]);
 				object->render();
+			}
 		}
 	}
 }
@@ -42,6 +44,6 @@ void ObjectList::clear() {
 	object_list.clear();
 }
 
-const std::shared_ptr<Object>& ObjectList::operator [] (const std::string& id) const {
-	return object_list.at(id);
+const std::shared_ptr<Object>& ObjectList::operator [] (const std::string& id) {
+	return object_list[id];
 }

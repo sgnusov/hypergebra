@@ -24,21 +24,26 @@ ld cosh(ld alpha) {
 	return (std::exp(alpha) + std::exp(-alpha)) / 2;
 }
 
-Point::Point(const Point& p, const std::string& type) : GeometryObject(type, 1) {
+Point::Point() : GeometryObject(POINT_CAP | MOVABLE_POINT_CAP, 1) {
+	color = {37, 75, 198};
+}
+
+Point::Point(const Point& p, const cap_t capability_) : Point() {
+	capability &= ~MOVABLE_POINT_CAP;
+	capability |= capability_;
 	coords[0] = p[0];
 	coords[1] = p[1];
 	coords[2] = p[2];
 }
 
-Point::Point() : GeometryObject("Point", 1) {}
-
-Point::Point(ld x, ld y, ld z) : GeometryObject("Point", 1) {
+Point::Point(ld x, ld y, ld z) : Point() {
 	coords[0] = x;
 	coords[1] = y;
 	coords[2] = z;
 }
 
 Point::Point(ld x, ld y) : Point(x, y, std::sqrt(1 + x * x + y * y)) {}
+
 Point Point::projectPoint(const Point& p) {
 	return *this;
 }
@@ -137,9 +142,12 @@ Transformation operator * (const Transformation& t, const Transformation& u) {
 	return res;
 }
 
-Line::Line() : GeometryObject("Line"), coords() {}
+Line::Line() : GeometryObject(LINE_CAP), coords() {
+	color = {172, 172, 172};
+}
 
-Line::Line(ld x, ld y, ld z) : GeometryObject("Line"), coords(x, y, z) {
+Line::Line(ld x, ld y, ld z) : Line() {
+	coords = Point(x, y, z);
 	coords = coords / std::sqrt(coords.sq());
 }
 
@@ -187,7 +195,7 @@ std::ostream& operator << (std::ostream& out, const Point& p) {
 	return out;
 }
 
-PointOnLine::PointOnLine(Point p, Line l) : Point(l.projectPoint(p), "PointOnLine"), l(l) {}
+PointOnLine::PointOnLine(Point p, Line l) : Point(l.projectPoint(p), MOVABLE_POINT_CAP | POINT_ON_LINE_CAP), l(l) {}
 
 /*
 void PointOnLine::render() {
@@ -199,4 +207,6 @@ Point PointOnLine::projectPoint(const Point& p_) {
 }
 */
 
-FixedPoint::FixedPoint(const Point& p) : Point(p, "FixedPoint") {}
+FixedPoint::FixedPoint(const Point& p) : Point(p, FIXED_POINT_CAP) {
+	color = {86, 86, 86};
+}

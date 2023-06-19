@@ -25,12 +25,12 @@ void MovePointTool::processEvent(SDL_Event event_) {
 					int origin_id = -1;
 					ld min = ACTIVATION_DISTANCE;
 					for(auto [id, object_ptr] : objects) {
-						if(object_ptr != nullptr && (object_ptr->type == "Point" || object_ptr->type == "PointOnLine")) {
+						if(object_ptr != nullptr && (object_ptr->getCapability() & MOVABLE_POINT_CAP)) {
 							ld dist = std::static_pointer_cast<GeometryObject>(object_ptr)->squareScreenDistance(p);
 							if(dist < min) {
 								min = dist;
 								origin_id = objects.getOrigin(id);
-								is_point_on_line = (object_ptr->type == "PointOnLine");
+								is_point_on_line = (object_ptr->getCapability() & POINT_ON_LINE_CAP);
 							}
 						}
 					}
@@ -83,7 +83,7 @@ void CreatePointTool::processEvent(SDL_Event event_) {
 				std::string min_id = "";
 				ld min = ACTIVATION_DISTANCE;
 				for(auto [id, object_ptr] : objects) {
-					if(object_ptr != nullptr && object_ptr->type == "Line") {
+					if(object_ptr != nullptr && (object_ptr->getCapability() & LINE_CAP)) {
 						ld dist = std::static_pointer_cast<Line>(object_ptr)->squareScreenDistance(p);
 						if(dist < min) {
 							min = dist;
@@ -120,7 +120,7 @@ void CreateLineTool::processEvent(SDL_Event event_) {
 				std::string min_id = "";
 				ld min = ACTIVATION_DISTANCE;
 				for(auto [id, object_ptr] : objects) {
-					if(object_ptr != nullptr && (object_ptr->type == "Point" || object_ptr->type == "PointOnLine")) {
+					if(object_ptr != nullptr && (object_ptr->getCapability() & MOVABLE_POINT_CAP)) {
 						ld dist = std::static_pointer_cast<GeometryObject>(object_ptr)->squareScreenDistance(p);
 						if(dist < min) {
 							min = dist;
@@ -136,7 +136,6 @@ void CreateLineTool::processEvent(SDL_Event event_) {
 					if(point_id == min_id) {
 						break;
 					}
-					std::cerr << min_id << ' ' << point_id << '\n';
 					instructions.push_back(std::make_unique<CreateLine>(instructions.size(), point_id, min_id));
 				} 
 				break;
@@ -162,7 +161,7 @@ void IntersectLinesTool::processEvent(SDL_Event event_) {
 				std::string min_id = "";
 				ld min = ACTIVATION_DISTANCE;
 				for(auto [id, object_ptr] : objects) {
-					if(object_ptr != nullptr && object_ptr->type == "Line") {
+					if(object_ptr != nullptr && (object_ptr->getCapability() & LINE_CAP)) {
 						ld dist = std::static_pointer_cast<GeometryObject>(object_ptr)->squareScreenDistance(p);
 						if(dist < min) {
 							min = dist;
@@ -178,7 +177,6 @@ void IntersectLinesTool::processEvent(SDL_Event event_) {
 					if(line_id == min_id) {
 						break;
 					}
-					std::cerr << min_id << ' ' << line_id << '\n';
 					instructions.push_back(std::make_unique<IntersectLines>(instructions.size(), line_id, min_id));
 				} 
 				break;

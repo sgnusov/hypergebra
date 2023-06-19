@@ -4,30 +4,46 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
+#include <vector>
+#include <optional>
 
 using ld = long double;
+using cap_t = uint32_t;
+
+const cap_t GEOMETRY_OBJECT_CAP = 0x1;
+
+struct Properties {
+	std::optional<std::vector<unsigned char>> color;
+	std::optional<bool> is_selected;
+};
 
 class Object {
 	int render_priority;
 
+protected:
+	cap_t capability;
+
 public:
-	std::string type;
-	std::string base_type;
-	Object(const std::string& type);
-	Object(const std::string& type, const std::string& base_type);
-	Object(const std::string& type, const std::string& base_type, int render_priority);
+	std::vector<unsigned char> color;
+	bool is_selected;
+
+public:
+	Object(cap_t capability);
+	Object(cap_t capability, int render_priority);
 	virtual ~Object() = default;
 
 	virtual void render() = 0;
-	int getRenderPriority();
+	int getRenderPriority() const;
+	cap_t getCapability() const;
+	void assignProperties(const Properties& properties);
 };
 
 class Point;
 
 class GeometryObject : public Object {
 public:
-	GeometryObject(const std::string& type);
-	GeometryObject(const std::string& type, int render_priority);
+	GeometryObject(cap_t capability);
+	GeometryObject(cap_t capability, int render_priority);
 	virtual Point projectPoint(const Point& p) = 0;
 	virtual ld squareScreenDistance(const Point& p);
 };

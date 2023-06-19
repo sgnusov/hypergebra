@@ -11,6 +11,9 @@ class ObjectList {
 	std::map<std::string, int> origin;
 
 public:
+	std::map<std::string, Properties> properties;
+
+public:
 	using const_iterator = std::map<std::string, std::shared_ptr<Object>>::const_iterator;
 	
 	const_iterator begin() const;
@@ -22,7 +25,7 @@ public:
 	void clear();
 	void render();
 	
-	const std::shared_ptr<Object>& operator [] (const std::string& id) const;
+	const std::shared_ptr<Object>& operator [] (const std::string& id);
 };
 
 extern ObjectList objects;

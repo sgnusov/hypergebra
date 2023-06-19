@@ -9,11 +9,17 @@ class Line;
 
 #include <iostream>
 
+const cap_t POINT_CAP = 0x2;
+const cap_t MOVABLE_POINT_CAP = 0x4;
+const cap_t LINE_CAP = 0x8;
+const cap_t POINT_ON_LINE_CAP = 0x10;
+const cap_t FIXED_POINT_CAP = 0x20;
+
 class Point : public GeometryObject {
 	ld coords[3];
 
 protected:
-	Point(const Point& p, const std::string& type);
+	Point(const Point& p, cap_t capability);
 
 public:
 	Point();

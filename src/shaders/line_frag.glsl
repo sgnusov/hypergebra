@@ -5,6 +5,7 @@
 in vec4 gl_FragCoord;
 in vec2 uv;
 
+uniform vec3 color;
 uniform vec3 x0;
 uniform vec3 v0;
 uniform float width;
@@ -18,7 +19,7 @@ float d(vec3 a, vec3 b) {
 #include "camera.lib"
 
 void main() {
-	frag_color = vec4(vec3(1, 1, 1) * 0.75, 1.0);
+	frag_color = vec4(color, 1.0);
 
 	vec3 p = clipToWorld(uv);
 

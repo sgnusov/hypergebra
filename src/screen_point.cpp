@@ -1,5 +1,7 @@
 #include "screen_point.h"
 
+#include <iostream>
+
 ScreenPoint::ScreenPoint(ld x, ld y) {
 	coords[0] = x;
 	coords[1] = y;
