@@ -6,6 +6,8 @@
 
 #include "geometry.h"
 
+void deselectObjects();
+
 class Tool {
 public:
 	virtual void processEvent(SDL_Event graphics) = 0;

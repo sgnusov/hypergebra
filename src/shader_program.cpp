@@ -86,6 +86,9 @@ void ShaderProgram::setf(const std::string& name, float a, float b, float c, flo
 	glUniform4f(glGetUniformLocation(program_id, name.c_str()), a, b, c, d);
 }
 
+void ShaderProgram::seti(const std::string& name, int a) {
+	glUniform1i(glGetUniformLocation(program_id, name.c_str()), a);
+}
 void ShaderProgram::setMatrix3f(const std::string& name, const long double* arr) {
 	float arr_[9];
 	for(int i = 0; i < 9; ++i)

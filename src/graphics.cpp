@@ -250,6 +250,7 @@ int mainLoop() {
 							break;
 						}
 				}
+				deselectObjects();
 			}
 			//std::cerr << "Got event\n";
 			active_tool->processEvent(event);

@@ -5,6 +5,7 @@
 in vec4 gl_FragCoord;
 in vec2 uv;
 
+uniform bool is_selected;
 uniform vec3 color;
 uniform vec3 x0;
 uniform vec3 v0;
@@ -18,8 +19,15 @@ float d(vec3 a, vec3 b) {
 
 #include "camera.lib"
 
+float getGradientLength(inout float value) {
+	float l = length(vec2(dFdx(value), dFdy(value)));
+	return clamp(value / l, 0, 1);
+}
+
 void main() {
 	frag_color = vec4(color, 1.0);
+	if(is_selected)
+		frag_color.xyz /= 1.2;
 
 	vec3 p = clipToWorld(uv);
 
@@ -30,5 +38,11 @@ void main() {
 	vec2 uv1 = worldToClip(x) - uv;
 	float dist = length(uv1) - width / 2;
 
-	frag_color.w = 1 - dist / length(vec2(dFdx(dist), dFdy(dist)));
+	if(is_selected) {
+		frag_color = mix(frag_color, vec4(frag_color.xyz, 0.3),  getGradientLength(dist));
+		dist -= width;
+		if(dist < 0)
+			return;
+	}
+	frag_color.w *= 1 - getGradientLength(dist);
 }

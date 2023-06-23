@@ -23,6 +23,7 @@ public:
 	void setf(const std::string& name, float a);
 	void setf(const std::string& name, float a, float b, float c);
 	void setf(const std::string& name, float a, float b, float c, float d);
+	void seti(const std::string& name, int a);
 	void setMatrix3f(const std::string& name, const long double* arr);
 };
 
