@@ -18,7 +18,7 @@ int window_width = 1280, window_height = 720;
 SDL_Window* window;
 SDL_GLContext gl_context;
 
-Camera active_camera = Camera::Poincare();
+Camera active_camera = Camera::PoincareHalfPlane();
 std::unordered_map<std::string, std::unique_ptr<ShaderProgram>> shader_cache;
 
 std::shared_ptr<Tool> active_tool = std::make_shared<MovePointTool>();
@@ -185,6 +185,10 @@ int initGraphics() {
 	ShaderProgram::addLibrary("camera.lib", active_camera.getShaderLib());
 
 	//instructions.push_back(std::make_unique<CreatePoint>(0, Point(0, 0)));
+
+	//instructions.push_back(std::make_unique<CreatePoint>(0, Point(0.3, -1)));
+
+
 	instructions.push_back(std::make_unique<CreatePoint>(0, Point(1, 1)));
 	instructions.push_back(std::make_unique<CreatePoint>(1, Point(-1, 1)));
 	instructions.push_back(std::make_unique<CreatePoint>(2, Point(3, -1)));
@@ -247,6 +251,11 @@ int mainLoop() {
 					case SDLK_i : {
 							std::cerr << "Switching to line intersection\n";
 							active_tool = std::make_shared<IntersectLinesTool>();
+							break;
+						}
+					case SDLK_h : {
+							std::cerr << "Switching to hiding objects\n";
+							active_tool = std::make_shared<HideObjectTool>();
 							break;
 						}
 				}

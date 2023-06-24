@@ -6,6 +6,7 @@ in vec4 gl_FragCoord;
 in vec2 uv;
 
 uniform bool is_selected;
+uniform bool is_hidden;
 uniform vec3 color;
 uniform vec3 x0;
 uniform vec3 v0;
@@ -26,6 +27,8 @@ float getGradientLength(inout float value) {
 
 void main() {
 	frag_color = vec4(color, 1.0);
+	if(is_hidden)
+		frag_color.w = 0.8;
 	if(is_selected)
 		frag_color.xyz /= 1.2;
 

@@ -1,10 +1,11 @@
 #include "object.h"
 #include "graphics.h"
 
-Object::Object(const cap_t capability) : capability(capability), render_priority(0), is_selected(false) {}
+Object::Object(const cap_t capability) : capability(capability), render_priority(0), is_selected(false), is_hidden(false) {}
 
-Object::Object(const cap_t capability, int render_priority)
-	: capability(capability), render_priority(render_priority), is_selected(false) {}
+Object::Object(const cap_t capability, int render_priority_) : Object(capability) {
+	render_priority = render_priority_;
+}
 
 int Object::getRenderPriority() const {
 	return render_priority;
@@ -19,6 +20,8 @@ void Object::assignProperties(const Properties& properties) {
 		color = properties.color.value();
 	if(properties.is_selected.has_value())
 		is_selected = properties.is_selected.value();
+	if(properties.is_hidden.has_value())
+		is_hidden = properties.is_hidden.value();
 }
 
 ld GeometryObject::squareScreenDistance(const Point& p) {

@@ -3,6 +3,8 @@
 
 #include "object_list.h"
 
+bool show_hidden = false;
+
 ObjectList objects;
 
 void ObjectList::add(const std::string& id, int origin_id, const std::shared_ptr<Object>& obj_ptr) {
@@ -34,7 +36,8 @@ void ObjectList::render() {
 		for(auto [id, object] : object_list) {
 			if(object != nullptr && object->getRenderPriority() == priority) {
 				object->assignProperties(properties[id]);
-				object->render();
+				if(show_hidden || !object->is_hidden)
+					object->render();
 			}
 		}
 	}

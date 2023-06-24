@@ -45,7 +45,7 @@ Camera Camera::BeltramiKlein() {
 	);
 }
 
-Camera Camera::Poincare() {
+Camera Camera::PoincareDisk() {
 	return Camera(
 		[](const Point& p){ return ScreenPoint(p[0] / (p[2] + 1), p[1] / (p[2] + 1)); },
 		[](const ScreenPoint& p) -> std::optional<Point> {
@@ -56,6 +56,34 @@ Camera Camera::Poincare() {
 			mod = 2 / mod;
 			return Point(p[0] * mod, p[1] * mod, mod - 1);
 		},
-		poincare_lib
+		poincare_disk_lib
+	);
+}
+
+Camera Camera::PoincareHalfPlane() {
+	return Camera(
+		[](const Point& p){
+			Point p1 = p;
+			p1 = p1 / (p1[2] + 1);
+			p1[1] += 1;
+			p1[2] = 0;
+			p1 = p1 / p1.sq() * 2;
+			return ScreenPoint(p1[0], p1[1] - 2);
+		},
+		[](const ScreenPoint& p) -> std::optional<Point> {
+			if(p[1] <= -1) {
+				return std::nullopt;
+			}
+			Point res(p[0], p[1] + 2, 0);
+			res = res / res.sq() * 2;
+			res[1] -= 1;
+			ld mod = (1 - res[0] * res[0] - res[1] * res[1]);
+			if(mod <= 0) {
+				return std::nullopt;
+			}
+			mod = 2 / mod;
+			return Point(res[0] * mod, res[1] * mod, mod - 1);
+		},
+		poincare_half_plane_lib
 	);
 }

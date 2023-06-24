@@ -15,6 +15,7 @@ const cap_t GEOMETRY_OBJECT_CAP = 0x1;
 struct Properties {
 	std::optional<std::vector<unsigned char>> color;
 	std::optional<bool> is_selected;
+	std::optional<bool> is_hidden;
 };
 
 class Object {
@@ -26,6 +27,7 @@ protected:
 public:
 	std::vector<unsigned char> color;
 	bool is_selected;
+	bool is_hidden;
 
 public:
 	Object(cap_t capability);

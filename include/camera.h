@@ -32,7 +32,8 @@ public:
 	void initShaderProgram(std::unique_ptr<ShaderProgram>& program_ptr);
 
 	static Camera BeltramiKlein();
-	static Camera Poincare();
+	static Camera PoincareDisk();
+	static Camera PoincareHalfPlane();
 };
 
 #endif

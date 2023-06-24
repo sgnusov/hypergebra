@@ -29,5 +29,6 @@ public:
 };
 
 extern ObjectList objects;
+extern bool show_hidden;
 
 #endif

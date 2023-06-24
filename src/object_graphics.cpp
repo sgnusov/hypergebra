@@ -22,6 +22,11 @@ void Point::render() {
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 	shader_ptr->seti("is_selected", false);
+	if(is_hidden) {
+		shader_ptr->seti("is_hidden", true);
+	} else {
+		shader_ptr->seti("is_hidden", false);
+	}
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 }
@@ -40,9 +45,15 @@ void Line::render() {
 	shader_ptr->setf("v0", tg[0], tg[1], tg[2]);
 	shader_ptr->setf("width", 0.006);
 	shader_ptr->setf("ratio", (float)window_width / window_height);
-	shader_ptr->seti("is_selected", false);
 	if(is_selected) {
 		shader_ptr->seti("is_selected", true);
+	} else {
+		shader_ptr->seti("is_selected", false);
+	}
+	if(is_hidden) {
+		shader_ptr->seti("is_hidden", true);
+	} else {
+		shader_ptr->seti("is_hidden", false);
 	}
 	shader_ptr->setf("color", color[0] / 255.0, color[1] / 255.0, color[2] / 255.0);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
