@@ -6,7 +6,11 @@
 
 std::vector<std::unique_ptr<Instruction>> instructions;
 
-Instruction::Instruction(int id) : id(id) {}
+Instruction::Instruction(int id) : id(id), priority(0), is_disabled(false) {}
+
+Instruction::Instruction(int id, int priority_) : Instruction(id) {
+	priority = priority_;
+}
 
 void Instruction::process() {
 	if(!is_disabled)
@@ -93,4 +97,10 @@ void IntersectLines::execute() {
 		res = -res;
 	}
 	objects.add(std::to_string(id), id, std::make_shared<FixedPoint>(res));
+}
+
+DeleteObject::DeleteObject(int id, int instruction_id) : Instruction(id, -1), instruction_id(instruction_id) {}
+
+void DeleteObject::execute() {
+	instructions[instruction_id]->disable();
 }

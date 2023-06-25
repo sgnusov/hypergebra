@@ -18,7 +18,7 @@ int window_width = 1280, window_height = 720;
 SDL_Window* window;
 SDL_GLContext gl_context;
 
-Camera active_camera = Camera::PoincareHalfPlane();
+Camera active_camera = Camera::PoincareDisk();
 std::unordered_map<std::string, std::unique_ptr<ShaderProgram>> shader_cache;
 
 std::shared_ptr<Tool> active_tool = std::make_shared<MovePointTool>();
@@ -256,6 +256,21 @@ int mainLoop() {
 					case SDLK_h : {
 							std::cerr << "Switching to hiding objects\n";
 							active_tool = std::make_shared<HideObjectTool>();
+							break;
+						}
+					case SDLK_d : {
+							std::cerr << "Switching to deleting objects\n";
+							active_tool = std::make_shared<DeleteObjectTool>();
+							break;
+						}
+					case SDLK_u : {
+							std::cerr << "Undoing last instructions\n";
+							instructions.pop_back();
+							break;
+						}
+					case SDLK_c : {
+							std::cerr << "Switching to pan\n";
+							active_tool = std::make_shared<MoveCameraTool>();
 							break;
 						}
 				}

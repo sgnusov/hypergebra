@@ -93,5 +93,5 @@ void ShaderProgram::setMatrix3f(const std::string& name, const long double* arr)
 	float arr_[9];
 	for(int i = 0; i < 9; ++i)
 		arr_[i] = arr[i];
-	glUniformMatrix3fv(glGetUniformLocation(program_id, name.c_str()), 1, GL_FALSE, arr_);
+	glUniformMatrix3fv(glGetUniformLocation(program_id, name.c_str()), 1, GL_TRUE, arr_);
 }

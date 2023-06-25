@@ -1,6 +1,8 @@
 #ifndef SCREEN_POINT_H_
 #define SCREEN_POINT_H_
 
+#include <ostream>
+
 using ld = long double;
 
 class ScreenPoint {
@@ -16,5 +18,7 @@ public:
 };
 
 ScreenPoint operator - (const ScreenPoint& u, const ScreenPoint& v);
+
+std::ostream& operator << (std::ostream& out, const ScreenPoint& p);
 
 #endif

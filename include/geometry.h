@@ -39,6 +39,10 @@ public:
 
 std::ostream& operator << (std::ostream& out, const Point& p);
 
+bool operator == (const Point& u, const Point& v);
+
+bool operator != (const Point& u, const Point& v);
+
 ld operator * (const Point& u, const Point& v);
 
 Point operator ^ (const Point& u, const Point& v);
@@ -59,11 +63,26 @@ class Transformation {
 
 public:
 	Transformation();
+
 	ld* operator [] (int i);
 	const ld* operator [] (int i) const;
 	operator const ld*() const;
+
+	void correct();
+
 	static Transformation identity();
+	static Transformation rotateToPoint(const Point& p);
+	static Transformation reverseRotateToPoint(const Point& p);
+	static Transformation moveToXPoint(const Point& p);
+	static Transformation reverseMoveToXPoint(const Point& p);
+	static Transformation moveToPoint(const Point& p);
+	static Transformation reverseMoveToPoint(const Point& p);
+	static Transformation movePointToPoint(const Point& p, const Point& q);
 };
+
+Transformation operator ~ (const Transformation& t);
+
+std::ostream& operator << (std::ostream& out, const Transformation& t);
 
 Point operator * (const Transformation& t, const Point& p);
 

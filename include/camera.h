@@ -29,7 +29,12 @@ public:
 	ScreenPoint worldToClip(const Point& p);
 	std::optional<Point> clipToWorld(const ScreenPoint& p);
 
+	ScreenPoint viewToClip(const Point& p);
+	std::optional<Point> clipToView(const ScreenPoint& p);
+
 	void initShaderProgram(std::unique_ptr<ShaderProgram>& program_ptr);
+
+	void move(Transformation trans);
 
 	static Camera BeltramiKlein();
 	static Camera PoincareDisk();

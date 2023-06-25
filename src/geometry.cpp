@@ -70,17 +70,6 @@ Transformation::Transformation() {
 */
 }
 
-Transformation Transformation::identity() {
-	Transformation res;
-	for(int i = 0; i < 3; ++i)
-		for(int j = 0; j < 3; ++j)
-			res[i][j] = 0;
-	for(int i = 0; i < 3; ++i)
-		res[i][i] = 1;
-	return res;
-}
-
-
 ld* Transformation::operator [] (int i) {
 	return matrix[i];
 }
@@ -91,6 +80,113 @@ const ld* Transformation::operator [] (int i) const {
 
 Transformation::operator const ld*() const {
 	return (ld*)matrix;
+}
+
+Transformation Transformation::identity() {
+	Transformation res;
+	for(int i = 0; i < 3; ++i)
+		for(int j = 0; j < 3; ++j)
+			res[i][j] = 0;
+	for(int i = 0; i < 3; ++i)
+		res[i][i] = 1;
+	return res;
+}
+
+void Transformation::correct() {
+	for(int i = 0; i < 3; ++i)
+		for(int j = 0; j <= i; ++j) {
+			ld mod = 0;
+			for(int k = 0; k < 3; ++k)
+	 			mod += matrix[k][i] * matrix[k][j] * (k == 2 ? -1 : 1);
+			if(i == j) mod = 1 - std::sqrt((i == 2 ? -1 : 1) / mod);
+			for(int k = 0; k < 3; ++k) matrix[k][i] -= mod * matrix[k][j];
+		}
+}
+
+Transformation Transformation::rotateToPoint(const Point& p) {
+	Transformation res = Transformation::identity();
+	ld r = std::sqrt(p[0] * p[0] + p[1] * p[1]);
+	if(r >= 1e-12) {
+		res[0][0] =  p[0] / r; res[0][1] = p[1] / r;
+		res[1][0] = -p[1] / r; res[1][1] = p[0] / r;
+	}
+	return res;
+};
+
+Transformation Transformation::reverseRotateToPoint(const Point& p) {
+	Transformation res = Transformation::identity();
+	ld r = std::sqrt(p[0] * p[0] + p[1] * p[1]);
+	if(r >= 1e-12) {
+		res[0][0] =  p[0] / r; res[0][1] = -p[1] / r;
+		res[1][0] =  p[1] / r; res[1][1] =  p[0] / r;
+	}
+	return res;
+}
+
+Transformation Transformation::moveToXPoint(const Point& p) {
+	Transformation res = Transformation::identity();
+	res[0][0] =  p[2]; res[0][2] = -p[0];
+	res[2][0] = -p[0]; res[2][2] =  p[2];
+	return res;
+}
+
+Transformation Transformation::reverseMoveToXPoint(const Point& p) {
+	Transformation res = Transformation::identity();
+	res[0][0] =  p[2]; res[0][2] =  p[0];
+	res[2][0] =  p[0]; res[2][2] =  p[2];
+	return res;
+}
+
+Transformation Transformation::moveToPoint(const Point& p) {
+	Point q = Transformation::rotateToPoint(p) * p;
+	return Transformation::reverseRotateToPoint(p) * Transformation::moveToXPoint(q) * Transformation::rotateToPoint(p);
+}
+
+Transformation Transformation::reverseMoveToPoint(const Point& p) {
+	Point q = Transformation::rotateToPoint(p) * p;
+	return Transformation::reverseRotateToPoint(p) * Transformation::reverseMoveToXPoint(q) * Transformation::rotateToPoint(p);
+}
+
+Transformation Transformation::movePointToPoint(const Point& p, const Point& q) {
+	Point p_ = Transformation::moveToPoint(q) * p;
+	return Transformation::reverseMoveToPoint(q) * Transformation::moveToPoint(p_) * Transformation::moveToPoint(q);
+}
+
+Transformation operator ~ (const Transformation& t) {
+	ld det = 0;
+	for(int i = 0; i < 3; ++i)
+		det += t[0][i] * t[1][(i + 1) % 3] * t[2][(i + 2) % 3];
+	for(int i = 0; i < 3; ++i)
+		det -= t[0][i] * t[1][(i + 2) % 3] * t[2][(i + 1) % 3];
+
+	if(det < 1e-12)
+		return t;
+
+	Transformation res;
+	for(int i = 0; i < 3; ++i)
+		for(int j = 0; j < 3; ++j) {
+			res[j][i] = (t[(i + 1) % 3][(j + 1) % 3] * t[(i + 2) % 3][(j + 2) % 3]
+				- t[(i + 1) % 3][(j + 2) % 3] * t[(i + 2) % 3][(j + 1) % 3]) / det;
+		}
+	return res;
+}
+
+std::ostream& operator << (std::ostream& out, const Transformation& t) {
+	for(int i = 0; i < 3; ++i) {
+		for(int j = 0; j < 3; ++j) {
+			out << t[i][j] << ' ';
+		}
+		out << '\n';
+	}
+	return out;
+}
+
+bool operator == (const Point& u, const Point& v) {
+	return u[0] == v[0] && u[1] == v[1] && u[2] == v[2];
+}
+
+bool operator != (const Point& u, const Point& v) {
+	return !(u == v);
 }
 
 ld operator * (const Point& u, const Point& v) {

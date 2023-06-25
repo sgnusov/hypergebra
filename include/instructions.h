@@ -12,13 +12,14 @@ class Instruction;
 extern std::vector<std::unique_ptr<Instruction>> instructions;
 
 class Instruction {
-	bool is_disabled = false;
-	int priority = 0;
+	bool is_disabled;
+	int priority;
 protected:
 	int id;
 	virtual void execute() = 0;
 public:
 	Instruction(int id);
+	Instruction(int id, int priority);
 	virtual ~Instruction() = default;
 
 	void process();
@@ -61,4 +62,12 @@ class IntersectLines : public Instruction {
 public:
 	IntersectLines(int id, const std::string& idp, const std::string& idq);
 };
+
+class DeleteObject : public Instruction {
+	int instruction_id;
+	void execute();
+public:
+	DeleteObject(int id, int instruction_id);
+};
+
 #endif

@@ -39,10 +39,13 @@ void Line::render() {
 	}
 	shader_ptr->activate();
 	active_camera.initShaderProgram(shader_ptr);
+	shader_ptr->setf("l", coords[0], coords[1], coords[2]);
+/*
 	Point p = getPoint();
 	Point tg = getTangent(p);
 	shader_ptr->setf("x0", p[0], p[1], p[2]);
 	shader_ptr->setf("v0", tg[0], tg[1], tg[2]);
+*/
 	shader_ptr->setf("width", 0.006);
 	shader_ptr->setf("ratio", (float)window_width / window_height);
 	if(is_selected) {

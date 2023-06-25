@@ -267,3 +267,95 @@ HideObjectTool::HideObjectTool() {
 HideObjectTool::~HideObjectTool() {
 	show_hidden = false;
 }
+
+void DeleteObjectTool::processEvent(SDL_Event event_) {
+	switch(event_.type) {
+		case SDL_MOUSEBUTTONDOWN : 
+			{
+				SDL_MouseButtonEvent event = event_.button;
+				if(event.button != SDL_BUTTON_LEFT)
+					break;
+				ld x = getX(event.x);
+				ld y = getY(event.y);
+				ScreenPoint click(x, y);
+				std::optional<Point> p_ = active_camera.clipToWorld(click);
+				if(p_ == std::nullopt) {
+					break;
+				}
+				Point p = p_.value();
+				std::string min_id = "";
+				ld min = ACTIVATION_DISTANCE;
+				for(auto [id, object_ptr] : objects) {
+					if(object_ptr != nullptr && (object_ptr->getCapability() & POINT_CAP)) {
+						ld dist = std::static_pointer_cast<GeometryObject>(object_ptr)->squareScreenDistance(p);
+						if(dist < min) {
+							min = dist;
+							min_id = id;
+						}
+					}
+				}
+				if(min_id != "") {
+					instructions.push_back(std::make_unique<DeleteObject>(instructions.size(), objects.getOrigin(min_id)));
+					break;
+				}
+				for(auto [id, object_ptr] : objects) {
+					if(object_ptr != nullptr && (object_ptr->getCapability() & GEOMETRY_OBJECT_CAP)) {
+						ld dist = std::static_pointer_cast<GeometryObject>(object_ptr)->squareScreenDistance(p);
+						if(dist < min) {
+							min = dist;
+							min_id = id;
+						}
+					}
+				}
+				if(min_id != "") {
+					instructions.push_back(std::make_unique<DeleteObject>(instructions.size(), objects.getOrigin(min_id)));
+				}
+				break;
+			}
+	}
+}
+
+void MoveCameraTool::processEvent(SDL_Event event_) {
+	switch(event_.type) {
+		case SDL_MOUSEBUTTONDOWN : 
+			{
+				SDL_MouseButtonEvent event = event_.button;
+				if(event.button != SDL_BUTTON_LEFT)
+					break;
+				ld x = getX(event.x);
+				ld y = getY(event.y);
+				ScreenPoint click(x, y);
+				std::optional<Point> p_ = active_camera.clipToView(click);
+				if(p_ == std::nullopt) {
+					break;
+				}
+				Point p = p_.value();
+				last_mouse_position = p;
+				//active_camera.move(Transformation::rotateToPoint(p));
+				//active_camera.move(Transformation::moveToPoint(p));
+				break;
+			}
+		case SDL_MOUSEBUTTONUP : 
+			{
+				last_mouse_position = Point(0, 0, 0);
+				break;
+			}
+		case SDL_MOUSEMOTION : {
+				SDL_MouseButtonEvent event = event_.button;
+				if(event.button != SDL_BUTTON_LEFT)
+					break;
+				ld x = getX(event.x);
+				ld y = getY(event.y);
+				ScreenPoint click(x, y);
+				std::optional<Point> p_ = active_camera.clipToView(click);
+				if(p_ == std::nullopt) {
+					break;
+				}
+				Point p = p_.value();
+				//active_camera.move(Transformation::moveToPoint(p));
+				active_camera.move(Transformation::movePointToPoint(last_mouse_position, p));
+				last_mouse_position = p;
+				break;
+			}
+	}
+}

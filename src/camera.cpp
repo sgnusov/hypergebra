@@ -25,9 +25,26 @@ std::optional<Point> Camera::clipToWorld(const ScreenPoint& p) {
 	return view2world * res.value();
 }
 
+ScreenPoint Camera::viewToClip(const Point& p) {
+	return view2clip(p);
+}
+
+std::optional<Point> Camera::clipToView(const ScreenPoint& p) {
+	std::optional<Point> res = clip2view(p);
+	if(res == std::nullopt)
+		return std::nullopt;
+	return res.value();
+}
+
 void Camera::initShaderProgram(std::unique_ptr<ShaderProgram>& program_ptr) {
 	program_ptr->setMatrix3f("view2world", view2world);
 	program_ptr->setMatrix3f("world2view", world2view);
+}
+
+void Camera::move(Transformation trans) {
+	world2view = trans * world2view;
+	world2view.correct();
+	view2world = ~world2view;
 }
 
 Camera Camera::BeltramiKlein() {

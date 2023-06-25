@@ -8,8 +8,9 @@ in vec2 uv;
 uniform bool is_selected;
 uniform bool is_hidden;
 uniform vec3 color;
-uniform vec3 x0;
-uniform vec3 v0;
+uniform vec3 l;
+//uniform vec3 x0;
+//uniform vec3 v0;
 uniform float width;
 
 out vec4 frag_color;
@@ -34,12 +35,15 @@ void main() {
 
 	vec3 p = clipToWorld(uv);
 
-	vec3 x = x0 + v0 * (d(v0, p) / d(-x0, p));
+	//vec3 x = x0 + v0 * (d(v0, p) / d(-x0, p));
+	vec3 x = p - l * d(p, l);
 	x /= sqrt(-d(x, x));
 
 	//float dist = acosh(-d(x, p));
 	vec2 uv1 = worldToClip(x) - uv;
 	float dist = length(uv1) - width / 2;
+	if(dist > 2 * width)
+		discard;
 
 	if(is_selected) {
 		frag_color = mix(frag_color, vec4(frag_color.xyz, 0.3),  getGradientLength(dist));

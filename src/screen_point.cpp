@@ -1,7 +1,5 @@
 #include "screen_point.h"
 
-#include <iostream>
-
 ScreenPoint::ScreenPoint(ld x, ld y) {
 	coords[0] = x;
 	coords[1] = y;
@@ -21,4 +19,9 @@ ld ScreenPoint::sq() {
 
 ScreenPoint operator - (const ScreenPoint& u, const ScreenPoint& v) {
 	return ScreenPoint(u[0] - v[0], u[1] - v[1]);
+}
+
+std::ostream& operator << (std::ostream& out, const ScreenPoint& p) {
+	out << p[0] << ' ' << p[1];
+	return out;
 }

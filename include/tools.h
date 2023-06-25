@@ -46,4 +46,15 @@ public:
 	void processEvent(SDL_Event graphics_event);
 };
 
+class DeleteObjectTool : public Tool {
+public:
+	void processEvent(SDL_Event graphics_event);
+};
+
+class MoveCameraTool : public Tool {
+	Point last_mouse_position;
+public:
+	void processEvent(SDL_Event graphics_event);
+};
+
 #endif
