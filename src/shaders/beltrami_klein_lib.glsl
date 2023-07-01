@@ -10,7 +10,7 @@ float _d(vec3 a, vec3 b) {
 vec3 clipToWorld(vec2 uv) {
 	vec3 p = vec3(uv, 1);
 	float mag = -_d(p, p);
-	if(mag < 0) {
+	if(mag <= 0) {
 		discard;
 	}
 	return view2world * (p / sqrt(mag));

@@ -14,6 +14,8 @@ const cap_t MOVABLE_POINT_CAP = 0x4;
 const cap_t LINE_CAP = 0x8;
 const cap_t POINT_ON_LINE_CAP = 0x10;
 const cap_t FIXED_POINT_CAP = 0x20;
+const cap_t CIRCLE_CAP = 0x40;
+const cap_t POINT_ON_CIRCLE_CAP = 0x80;
 
 class Point : public GeometryObject {
 	ld coords[3];
@@ -27,7 +29,7 @@ public:
 	Point(ld x, ld y);
 
 	void render();
-	Point projectPoint(const Point& p);
+	Point projectPoint(const Point& p) const;
 
 	ld& operator [] (int i);
 	const ld& operator [] (int i) const;
@@ -35,6 +37,7 @@ public:
 	operator Line() const;
 
 	ld sq() const;
+	Point norm() const;
 };
 
 std::ostream& operator << (std::ostream& out, const Point& p);
@@ -100,7 +103,7 @@ public:
 	Line(const Point& p, const Point& q);
 
 	void render();
-	Point projectPoint(const Point& p);
+	Point projectPoint(const Point& p) const;
 
 	ld& operator [] (int i);
 	const ld& operator [] (int i) const;
@@ -115,12 +118,36 @@ class PointOnLine : public Point {
 	Line l;
 
 public:
-	PointOnLine(Point p, Line l);
+	PointOnLine(const Point& p, const Line& l);
 };
 
 class FixedPoint : public Point {
 public:
 	FixedPoint(const Point& p);
+};
+
+
+class Circle : public GeometryObject {
+	Point center;
+	ld c;
+
+public:
+	Circle();
+	Circle(const Point& center, const Point& p);
+	Circle(const Point& center, ld c);
+
+	void render();
+	Point projectPoint(const Point& p) const;
+
+	Point getCenter() const;
+	ld getC() const;
+};
+
+class PointOnCircle : public Point {
+	Circle c;
+
+public:
+	PointOnCircle(const Point& p, const Circle& c);
 };
 
 #endif

@@ -46,7 +46,7 @@ class GeometryObject : public Object {
 public:
 	GeometryObject(cap_t capability);
 	GeometryObject(cap_t capability, int render_priority);
-	virtual Point projectPoint(const Point& p) = 0;
+	virtual Point projectPoint(const Point& p) const = 0;
 	virtual ld squareScreenDistance(const Point& p);
 };
 

@@ -62,3 +62,31 @@ void Line::render() {
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 }
+
+
+void Circle::render() {
+	std::unique_ptr<ShaderProgram>& shader_ptr = shader_cache["Circle"];
+	if(shader_ptr == nullptr) {
+		shader_ptr = std::make_unique<ShaderProgram>(circle_vert, circle_frag);
+	}
+	shader_ptr->activate();
+	active_camera.initShaderProgram(shader_ptr);
+	shader_ptr->setf("center", center[0], center[1], center[2]);
+	shader_ptr->setf("c", c);
+	shader_ptr->setf("width", 0.006);
+	shader_ptr->setf("ratio", (float)window_width / window_height);
+	if(is_selected) {
+		shader_ptr->seti("is_selected", true);
+	} else {
+		shader_ptr->seti("is_selected", false);
+	}
+	if(is_hidden) {
+		shader_ptr->seti("is_hidden", true);
+	} else {
+		shader_ptr->seti("is_hidden", false);
+	}
+	shader_ptr->setf("color", color[0] / 255.0, color[1] / 255.0, color[2] / 255.0);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	return;
+}
+

@@ -14,7 +14,7 @@ out vec2 uv;
 #include "camera.lib"
 
 void main() {
-	vec2 pos = worldToClip(coords);
+	//vec2 pos = worldToClip(coords);
 	uv = uv_in;
 /*
 	if(ratio > 1) {

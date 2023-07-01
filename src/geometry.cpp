@@ -1,28 +1,7 @@
 #include <cmath>
 
 #include "geometry.h"
-
-const ld EPS = 1e-12;
-
-bool eq(ld a, ld b) {
-	return std::abs(a - b) <= EPS;
-}
-
-bool gt(ld a, ld b) {
-	return a - b > EPS;
-}
-
-bool lt(ld a, ld b) {
-	return b - a > EPS;
-}
-
-ld sinh(ld alpha) {
-	return (std::exp(alpha) - std::exp(-alpha)) / 2;
-}
-
-ld cosh(ld alpha) {
-	return (std::exp(alpha) + std::exp(-alpha)) / 2;
-}
+#include "common.h"
 
 Point::Point() : GeometryObject(POINT_CAP | MOVABLE_POINT_CAP, 1) {
 	color = {37, 75, 198};
@@ -44,7 +23,7 @@ Point::Point(ld x, ld y, ld z) : Point() {
 
 Point::Point(ld x, ld y) : Point(x, y, std::sqrt(1 + x * x + y * y)) {}
 
-Point Point::projectPoint(const Point& p) {
+Point Point::projectPoint(const Point& p) const {
 	return *this;
 }
 
@@ -58,6 +37,10 @@ const ld& Point::operator [] (int i) const {
 
 ld Point::sq() const {
 	return (*this) * (*this);
+}
+
+Point Point::norm() const {
+	return (*this) / std::sqrt(-sq());
 }
 
 Transformation::Transformation() {
@@ -251,7 +234,7 @@ Line::Line(ld x, ld y) : Line(x, y, std::sqrt(x * x + y * y - 1)) {}
 
 Line::Line(const Point& p, const Point& q) : Line(p ^ q) {};
 
-Point Line::projectPoint(const Point& p) {
+Point Line::projectPoint(const Point& p) const {
 	Point q = p - coords * (p * coords);
 	q = q / std::sqrt(-q.sq());
 	return q;
@@ -291,7 +274,7 @@ std::ostream& operator << (std::ostream& out, const Point& p) {
 	return out;
 }
 
-PointOnLine::PointOnLine(Point p, Line l) : Point(l.projectPoint(p), MOVABLE_POINT_CAP | POINT_ON_LINE_CAP), l(l) {}
+PointOnLine::PointOnLine(const Point& p, const Line& l) : Point(l.projectPoint(p), MOVABLE_POINT_CAP | POINT_ON_LINE_CAP), l(l) {}
 
 /*
 void PointOnLine::render() {
@@ -306,3 +289,38 @@ Point PointOnLine::projectPoint(const Point& p_) {
 FixedPoint::FixedPoint(const Point& p) : Point(p, FIXED_POINT_CAP) {
 	color = {86, 86, 86};
 }
+
+
+Circle::Circle() : GeometryObject(CIRCLE_CAP), center(), c(0) {
+	color = {172, 172, 172};
+}
+
+
+Circle::Circle(const Point& center_, const Point& p) : Circle() {
+	center = center_;
+	c = -center * p;
+}
+
+Circle::Circle(const Point& center_, ld c_) : Circle() {
+	center = center_;
+	c = c_;
+}
+
+Point Circle::projectPoint(const Point& p) const {
+	Point center1 = center * c;
+	Point v = p * (-c / (p * center)) - center1;
+	ld mod = std::sqrt((c * c - 1) / v.sq());
+	return center1 + v * mod;
+}
+
+Point Circle::getCenter() const {
+	return center;
+}
+
+ld Circle::getC() const {
+	return c;
+}
+
+PointOnCircle::PointOnCircle(const Point& p, const Circle& c) : Point(c.projectPoint(p), MOVABLE_POINT_CAP | POINT_ON_CIRCLE_CAP), c(c) {}
+
+

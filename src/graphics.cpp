@@ -23,6 +23,12 @@ std::unordered_map<std::string, std::unique_ptr<ShaderProgram>> shader_cache;
 
 std::shared_ptr<Tool> active_tool = std::make_shared<MovePointTool>();
 
+void setCamera(const Camera& camera) {
+	active_camera = camera;
+	shader_cache.clear();
+	ShaderProgram::addLibrary("camera.lib", active_camera.getShaderLib());
+}
+
 ld getX(int x) {
 	ld ratio = (ld)window_width / window_height;
 	ld ret = (ld)x / window_width;
@@ -78,6 +84,8 @@ static void openglCallbackFunction(
 void setResolution(int width, int height) {
 	window_width = width;
 	window_height = height;
+	SDL_SetWindowSize(window, window_width, window_height);
+	glViewport(0, 0, window_width, window_height);
 	
 	float ratio = (float)width / height;
 	float x = 1, y = 1;
@@ -136,7 +144,7 @@ int initGraphics() {
 	SDL_GL_SetSwapInterval(0);
 
 	window = SDL_CreateWindow("Hypergebra", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-		window_width, window_height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+		window_width, window_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 	if(!window) {
 		logSdlError("SDL window creation failed.");
 		return -1;
@@ -171,24 +179,20 @@ int initGraphics() {
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
-	SDL_GetWindowSize(window, &window_width, &window_height);
-	glViewport(0, 0, window_width, window_height);
-	glLineWidth((GLfloat)5); // TODO: Convert it to a shader code
-
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-	setResolution(1280, 720);
+	setResolution(1920, 1280);
 
-	ShaderProgram::addLibrary("camera.lib", active_camera.getShaderLib());
+	setCamera(Camera::PoincareDisk());
 
 	//instructions.push_back(std::make_unique<CreatePoint>(0, Point(0, 0)));
 
 	//instructions.push_back(std::make_unique<CreatePoint>(0, Point(0.3, -1)));
 
-
+/*
 	instructions.push_back(std::make_unique<CreatePoint>(0, Point(1, 1)));
 	instructions.push_back(std::make_unique<CreatePoint>(1, Point(-1, 1)));
 	instructions.push_back(std::make_unique<CreatePoint>(2, Point(3, -1)));
@@ -197,7 +201,14 @@ int initGraphics() {
 	instructions.push_back(std::make_unique<CreateLine>(5, "0", "2"));
 	instructions.push_back(std::make_unique<CreatePointOnLine>(6, Point(2, 1), "3"));
 	instructions.push_back(std::make_unique<CreatePointOnLine>(7, Point(2, 1), "4"));
-
+	//instructions.push_back(std::make_unique<CreateCircle>(8, "0", "1"));
+	instructions.push_back(std::make_unique<CreateLine>(8, "6", "7"));
+*/
+	instructions.push_back(std::make_unique<CreatePoint>(0, Point(1, 1)));
+	instructions.push_back(std::make_unique<CreatePoint>(1, Point(-1, 1)));
+	instructions.push_back(std::make_unique<CreatePoint>(2, Point(3, -1)));
+	instructions.push_back(std::make_unique<CreateCircle>(3, "0", "1"));
+	instructions.push_back(std::make_unique<PolarLine>(4, "3", "2"));
 	return 0;
 }
 
@@ -208,6 +219,7 @@ int mainLoop() {
 	auto start_time = std::chrono::steady_clock::now();
 	float fps = 0.0f;
 	int last_ticks = SDL_GetTicks();
+	std::string current_input = "";
 	while(true) {
 		/*
 		if(SDL_GetTicks() - last_ticks < 1000 / 100) {
@@ -224,57 +236,112 @@ int mainLoop() {
 
 		SDL_GL_SwapWindow(window);
 		while(SDL_PollEvent(&event)) {
-			if(event.type == SDL_QUIT) {
-				SDL_GL_DeleteContext(gl_context);
-				SDL_DestroyWindow(window);
-				SDL_Quit();
-				return 0;
-			}
-			if(event.type == SDL_KEYDOWN) {
-				SDL_KeyboardEvent key = event.key;
-				switch (key.keysym.sym) {
-					case SDLK_m : {
+			switch(event.type) {
+				case SDL_QUIT : {
+					SDL_GL_DeleteContext(gl_context);
+					SDL_DestroyWindow(window);
+					SDL_Quit();
+					return 0;
+				}
+				case SDL_KEYDOWN : {
+					SDL_KeyboardEvent key = event.key;
+					if(SDLK_a <= key.keysym.sym && key.keysym.sym <= SDLK_z) {
+						current_input += (char)('a' + key.keysym.sym - SDLK_a);
+					}
+					if(key.keysym.sym == SDLK_ESCAPE) {
+						current_input = "";
+						active_tool = std::make_shared<MovePointTool>();
+					}
+					if(key.keysym.sym == SDLK_RETURN) {
+						if(current_input == "m") {
 							std::cerr << "Switching to move\n";
 							active_tool = std::make_shared<MovePointTool>();
-							break;
 						}
-					case SDLK_p : {
+						if(current_input == "p") {
 							std::cerr << "Switching to create point\n";
 							active_tool = std::make_shared<CreatePointTool>();
-							break;
 						}
-					case SDLK_l : {
+						if(current_input == "l") {
 							std::cerr << "Switching to create line\n";
 							active_tool = std::make_shared<CreateLineTool>();
-							break;
 						}
-					case SDLK_i : {
-							std::cerr << "Switching to line intersection\n";
-							active_tool = std::make_shared<IntersectLinesTool>();
-							break;
+						if(current_input == "i") {
+							std::cerr << "Switching to objects intersection\n";
+							active_tool = std::make_shared<IntersectObjectsTool>();
 						}
-					case SDLK_h : {
+						if(current_input == "h") {
 							std::cerr << "Switching to hiding objects\n";
 							active_tool = std::make_shared<HideObjectTool>();
-							break;
 						}
-					case SDLK_d : {
+						if(current_input == "d") {
 							std::cerr << "Switching to deleting objects\n";
 							active_tool = std::make_shared<DeleteObjectTool>();
-							break;
 						}
-					case SDLK_u : {
+						if(current_input == "u") {
 							std::cerr << "Undoing last instructions\n";
 							instructions.pop_back();
-							break;
 						}
-					case SDLK_c : {
-							std::cerr << "Switching to pan\n";
+						if(current_input == "c") {
+							std::cerr << "Switching to creating circle\n";
+							active_tool = std::make_shared<CreateCircleTool>();
+						}
+						if(current_input == "cm") {
+							std::cerr << "Switching to camera\n";
 							active_tool = std::make_shared<MoveCameraTool>();
-							break;
 						}
+						if(current_input == "pr") {
+							std::cerr << "Switching to perpendicular\n";
+							active_tool = std::make_shared<CreatePerpendicularLineTool>();
+						}
+						if(current_input == "pb") {
+							std::cerr << "Switching to perpendicular bisector\n";
+							active_tool = std::make_shared<CreatePerpendicularBisectorTool>();
+						}
+						if(current_input == "mp") {
+							std::cerr << "Switching to middle point\n";
+							active_tool = std::make_shared<CreateMiddlePointTool>();
+						}
+						if(current_input == "ab") {
+							std::cerr << "Switching to angle bisector\n";
+							active_tool = std::make_shared<CreateAngleBisectorTool>();
+						}
+						if(current_input == "pl") {
+							std::cerr << "Switching to polar line\n";
+							active_tool = std::make_shared<CreatePolarLineTool>();
+						}
+						if(current_input == "t") {
+							std::cerr << "Switching to tangents\n";
+							active_tool = std::make_shared<CreateTangentsTool>();
+						}
+						if(current_input == "cp") {
+							std::cerr << "Switching to create circle by 3 points\n";
+							active_tool = std::make_shared<CreateCircleByPointsTool>();
+						}
+						if(current_input == "rf") {
+							std::cerr << "Switching to reflect object\n";
+							active_tool = std::make_shared<ReflectObjectTool>();
+						}
+						if(current_input == "hp") {
+							setCamera(Camera::PoincareHalfPlane());
+						}
+						if(current_input == "ds") {
+							setCamera(Camera::PoincareDisk());
+						}
+						if(current_input == "bk") {
+							setCamera(Camera::BeltramiKlein());
+						}
+					
+						current_input = "";
+					}
+
+					deselectObjects();
+					break;
 				}
-				deselectObjects();
+				case SDL_WINDOWEVENT : {
+					if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
+						setResolution(event.window.data1, event.window.data2);
+					}
+				}
 			}
 			//std::cerr << "Got event\n";
 			active_tool->processEvent(event);

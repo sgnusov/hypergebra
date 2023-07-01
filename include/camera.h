@@ -14,10 +14,10 @@ class Camera {
 	Transformation world2view;
 	Transformation view2world;
 
-	const std::function<ScreenPoint(const Point&)> view2clip;
-	const std::function<std::optional<Point>(const ScreenPoint&)> clip2view;
+	std::function<ScreenPoint(const Point&)> view2clip;
+	std::function<std::optional<Point>(const ScreenPoint&)> clip2view;
 
-	const std::string shader_lib;
+	std::string shader_lib;
 
 public:
 	Camera(const std::function<ScreenPoint(const Point&)>& view2clip,
