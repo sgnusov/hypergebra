@@ -142,8 +142,7 @@ Transformation operator ~ (const Transformation& t) {
 	for(int i = 0; i < 3; ++i)
 		det -= t[0][i] * t[1][(i + 2) % 3] * t[2][(i + 1) % 3];
 
-	if(det < 1e-12)
-		return t;
+	assert(std::fabsl(det) > EPS);
 
 	Transformation res;
 	for(int i = 0; i < 3; ++i)
@@ -306,6 +305,7 @@ Circle::Circle(const Point& center_, ld c_) : Circle() {
 	c = c_;
 }
 
+// TODO: Fix division by zero
 Point Circle::projectPoint(const Point& p) const {
 	Point center1 = center * c;
 	Point v = p * (-c / (p * center)) - center1;

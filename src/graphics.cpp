@@ -203,12 +203,15 @@ int initGraphics() {
 	instructions.push_back(std::make_unique<CreatePointOnLine>(7, Point(2, 1), "4"));
 	//instructions.push_back(std::make_unique<CreateCircle>(8, "0", "1"));
 	instructions.push_back(std::make_unique<CreateLine>(8, "6", "7"));
-*/
+
 	instructions.push_back(std::make_unique<CreatePoint>(0, Point(1, 1)));
 	instructions.push_back(std::make_unique<CreatePoint>(1, Point(-1, 1)));
 	instructions.push_back(std::make_unique<CreatePoint>(2, Point(3, -1)));
 	instructions.push_back(std::make_unique<CreateCircle>(3, "0", "1"));
-	instructions.push_back(std::make_unique<PolarLine>(4, "3", "2"));
+	instructions.push_back(std::make_unique<CreatePointOnCircle>(4, Point(0, 0), "3"));
+	instructions.push_back(std::make_unique<Tangents>(5, "3", "4"));
+	//instructions.push_back(std::make_unique<PolarLine>(4, "3", "2"));
+*/
 	return 0;
 }
 
@@ -286,7 +289,7 @@ int mainLoop() {
 							active_tool = std::make_shared<CreateCircleTool>();
 						}
 						if(current_input == "cm") {
-							std::cerr << "Switching to camera\n";
+							std::cerr << "Switching to camera movement\n";
 							active_tool = std::make_shared<MoveCameraTool>();
 						}
 						if(current_input == "pr") {
@@ -330,7 +333,7 @@ int mainLoop() {
 						if(current_input == "bk") {
 							setCamera(Camera::BeltramiKlein());
 						}
-					
+
 						current_input = "";
 					}
 
